@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Complaint Form - Redeemer’s University</title>
+  <link rel="stylesheet" href="static/css/style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container mt-5 mb-5">
+    <div class="text-center mb-4">
+      <img src="static/redeemers-university-logo-transparent.png" alt="Redeemer’s University Logo" width="80" id="run-logo" />
+      <h2 class="mt-2">Redeemer’s University</h2>
+      <p class="text-muted motto">"Running with a Vision"</p>
+    </div>
+
+    <div class="card shadow p-4">
+      <h4 class="mb-3">Student Complaint / Repair Form</h4>
+      <form action="success.html" method="POST" enctype="multipart/form-data">
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="fullname" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="fullname" name="fullname" required />
+          </div>
+          <div class="col-md-6">
+            <label for="matric" class="form-label">Matric Number</label>
+            <input type="text" class="form-control" id="matric" name="matric" required />
+          </div>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="phone" class="form-label">Phone Number</label>
+            <input type="tel" class="form-control" id="phone" name="phone" required />
+          </div>
+          <div class="col-md-6">
+            <label for="email" class="form-label">Email Address</label>
+            <input type="email" class="form-control" id="email" name="email" required />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label for="location" class="form-label">Hostel / Classroom / Location</label>
+          <input type="text" class="form-control" id="location" name="location" required />
+        </div>
+
+        <div class="mb-3">
+          <label for="description" class="form-label">Description of the Repair Issue</label>
+          <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+        </div>
+
+        <div class="row mb-3">
+          <div class="col-md-6">
+            <label for="incident_date" class="form-label">Date of Incident</label>
+            <input type="date" class="form-control" id="incident_date" name="incident_date" required />
+          </div>
+          <div class="col-md-6">
+            <label for="photo" class="form-label">Upload a Photo</label>
+            <input type="file" class="form-control" id="photo" name="photo" accept="image/*" />
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100">Submit Complaint</button>
+      </form>
+    </div>
+    <footer class="text-center mt-5 mb-3 text-muted small">
+      Courtesy of <strong>RUNSA 2025/2026</strong>
+    </footer>
+  </div>
+</body>
+</html>

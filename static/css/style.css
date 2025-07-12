@@ -1,0 +1,197 @@
+body {
+  --bg: #f1f8e9;
+  --card-bg: rgba(255,255,255,0.85);
+  --text: #333;
+  --primary: #1a237e;
+  --secondary: #3949ab;
+  --success: #388e3c;
+  --warning: #fbc02d;
+  --danger: #d32f2f;
+  background: linear-gradient(135deg, #e3f2fd 0%, var(--bg) 100%);
+  color: var(--text);
+}
+
+#run-logo {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: logoFadeBounce 1.2s cubic-bezier(.68,-0.55,.27,1.55) forwards;
+}
+
+@keyframes logoFadeBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-30px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) translateY(10px);
+  }
+  80% {
+    transform: scale(0.95) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+h2 {
+  color: #1a237e;
+  font-weight: 700;
+}
+
+p.motto {
+  font-style: italic;
+  color: #4b4b4b;
+}
+
+.container {
+  animation: fadeIn 0.6s ease-in;
+}
+
+.card {
+  border: none;
+  border-radius: 20px;
+  background: var(--card-bg);
+  box-shadow: 0 12px 32px rgba(30, 60, 90, 0.15);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px); /* Safari support */
+  padding: 2rem 2.5rem;
+  color: var(--text);
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  transition: border 0.3s;
+}
+
+.form-control:focus {
+  border-color: #1a237e;
+  box-shadow: 0 0 0 0.15rem rgba(26, 35, 126, 0.25);
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+  border: none;
+  font-weight: bold;
+  padding: 14px;
+  border-radius: 12px;
+  transition: transform 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 16px rgba(26, 35, 126, 0.08);
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #3949ab 60%, #1a237e 100%);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 8px 24px rgba(26, 35, 126, 0.15);
+}
+
+.btn-danger { background: var(--danger); border: none; }
+.btn-success { background: var(--success); border: none; }
+.btn-info { background: var(--secondary); border: none; }
+.btn-secondary { background: #555; border: none; }
+
+label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+footer {
+  color: #555;
+  font-size: 0.9rem;
+  animation: fadeIn 1.5s ease-in-out;
+  opacity: 0.85;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Responsive table for mobile */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.table {
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.dark-mode {
+  --bg: #181a1b;
+  --card-bg: rgba(30,34,36,0.95);
+  --text: #f1f1f1;
+  --primary: #90caf9;
+  --secondary: #7986cb;
+  --success: #66bb6a;
+  --warning: #ffe082;
+  --danger: #ef5350;
+  background: linear-gradient(135deg, #232526 0%, var(--bg) 100%);
+  color: var(--text);
+}
+
+.dark-mode .card,
+.dark-mode .table {
+  background: var(--card-bg);
+  color: var(--text);
+}
+
+.dark-mode .btn-primary {
+  background: linear-gradient(90deg, var(--primary) 60%, var(--secondary) 100%);
+  color: #181a1b;
+}
+
+.dark-mode .btn-danger { background: var(--danger); color: #181a1b; }
+.dark-mode .btn-success { background: var(--success); color: #181a1b; }
+.dark-mode .btn-info { background: var(--secondary); color: #181a1b; }
+.dark-mode .btn-secondary { background: #888; color: #181a1b; }
+
+.dark-mode input, .dark-mode textarea, .dark-mode select {
+  background: #232526;
+  color: #f1f1f1;
+  border-color: #444;
+}
+
+.dark-mode label { color: #e0e0e0; }
+
+.dark-mode footer { color: #aaa; }
+
+@media (max-width: 768px) {
+  .container, .card {
+    padding: 0.5rem !important;
+  }
+  h2, h3 {
+    font-size: 1.2rem;
+  }
+  .btn, .btn-primary, .btn-danger, .btn-success, .btn-info, .btn-secondary {
+    font-size: 1rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+  }
+  .table th, .table td {
+    font-size: 0.95rem;
+    padding: 0.4rem;
+  }
+  dl.row dt, dl.row dd {
+    font-size: 1rem;
+  }
+  #run-logo {
+    width: 60px !important;
+  }
+  .row.mb-3 > .col-md-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 1rem;
+  }
+  .mb-3 {
+    margin-bottom: 1rem !important;
+  }
+  .form-control {
+    font-size: 1rem;
+    padding: 10px 12px;
+  }
+}

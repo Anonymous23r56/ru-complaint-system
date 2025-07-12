@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Complaint Details</title>
+  <link rel="stylesheet" href="/static/css/style.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+<body>
+  <div class="container mt-5">
+    <a href="{{ url_for('admin_panel') }}" class="btn btn-secondary mb-4">&larr; Back to All Complaints</a>
+    <div class="card p-4">
+      <h3 class="mb-3">Complaint Details</h3>
+      <dl class="row">
+        <dt class="col-sm-3">ID</dt>
+        <dd class="col-sm-9">{{ complaint[0] }}</dd>
+        <dt class="col-sm-3">Full Name</dt>
+        <dd class="col-sm-9">{{ complaint[1] }}</dd>
+        <dt class="col-sm-3">Matric</dt>
+        <dd class="col-sm-9">{{ complaint[2] }}</dd>
+        <dt class="col-sm-3">Phone</dt>
+        <dd class="col-sm-9">{{ complaint[3] }}</dd>
+        <dt class="col-sm-3">Email</dt>
+        <dd class="col-sm-9">{{ complaint[4] }}</dd>
+        <dt class="col-sm-3">Location</dt>
+        <dd class="col-sm-9">{{ complaint[5] }}</dd>
+        <dt class="col-sm-3">Description</dt>
+        <dd class="col-sm-9">{{ complaint[6] }}</dd>
+        <dt class="col-sm-3">Date</dt>
+        <dd class="col-sm-9">{{ complaint[7] }}</dd>
+        <dt class="col-sm-3">Photo</dt>
+        <dd class="col-sm-9">
+          {% if complaint[8] %}
+            <img src="/static/uploads/{{ complaint[8] }}" alt="Complaint Photo" class="img-fluid rounded" style="max-width: 400px; max-height: 300px;" />
+            <br><a href="/static/uploads/{{ complaint[8] }}" target="_blank">View Full Image</a>
+          {% else %}
+            No photo attached.
+          {% endif %}
+        </dd>
+        <dt class="col-sm-3">Attachments</dt>
+        <dd class="col-sm-9">
+          {% set attachments = [] %}
+          {% with %}
+            {% set _ = attachments.append(complaint[0]) %}
+            {% for a in get_attachments(complaint[0]) %}
+              <a href="/static/uploads/{{ a }}" target="_blank">{{ a }}</a><br>
+            {% endfor %}
+          {% endwith %}
+          {% if not get_attachments(complaint[0]) %}No attachments.{% endif %}
+        </dd>
+        <dt class="col-sm-3">Resolved</dt>
+        <dd class="col-sm-9">
+          {% if complaint[9] == 1 %}
+            <span class="badge bg-success">Resolved</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">Pending</span>
+          {% endif %}
+        </dd>
+      </dl>
+    </div>
+  </div>
+</body>
+</html> 

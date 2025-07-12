@@ -1,0 +1,95 @@
+body {
+  background: url('/static/download.jpg') no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  margin: 0;
+  padding: 0;
+  color: #333;
+}
+
+#run-logo {
+  opacity: 0;
+  transform: scale(0.8);
+  animation: logoFadeBounce 1.2s cubic-bezier(.68,-0.55,.27,1.55) forwards;
+}
+
+@keyframes logoFadeBounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8) translateY(-30px);
+  }
+  60% {
+    opacity: 1;
+    transform: scale(1.1) translateY(10px);
+  }
+  80% {
+    transform: scale(0.95) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+h2 {
+  color: #1a237e;
+  font-weight: 700;
+}
+
+p.motto {
+  font-style: italic;
+  color: #4b4b4b;
+}
+
+.container {
+  animation: fadeIn 0.6s ease-in;
+}
+
+.card {
+  border: none;
+  border-radius: 16px;
+  background-color: #ffffff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.form-control {
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  padding: 10px 14px;
+  transition: border 0.3s;
+}
+
+.form-control:focus {
+  border-color: #1a237e;
+  box-shadow: 0 0 0 0.15rem rgba(26, 35, 126, 0.25);
+}
+
+.btn-primary {
+  background-color: #1a237e;
+  border-color: #1a237e;
+  font-weight: bold;
+  padding: 12px;
+  border-radius: 10px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+.btn-primary:hover {
+  background-color: #0f174c;
+}
+
+label {
+  margin-bottom: 6px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+footer {
+  color: #555;
+  font-size: 0.9rem;
+  animation: fadeIn 1.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
