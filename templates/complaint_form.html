@@ -22,39 +22,39 @@
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="fullname" class="form-label">Full Name</label>
-            <input type="text" class="form-control" id="fullname" name="fullname" required />
+            <input type="text" class="form-control" id="fullname" name="fullname" required pattern="[A-Za-z ]{3,50}" title="Full name (letters and spaces only, 3-50 characters)" />
           </div>
           <div class="col-md-6">
             <label for="matric" class="form-label">Matric Number</label>
-            <input type="text" class="form-control" id="matric" name="matric" required />
+            <input type="text" class="form-control" id="matric" name="matric" required pattern="RUN/[A-Za-z]{3}/\d{2}/\d{4,6}" title="Matric number format: RUN/XXX/YY/12345" />
           </div>
         </div>
 
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="phone" class="form-label">Phone Number</label>
-            <input type="tel" class="form-control" id="phone" name="phone" required />
+            <input type="tel" class="form-control" id="phone" name="phone" required pattern="\d{11}" title="Phone number must be 11 digits" />
           </div>
           <div class="col-md-6">
             <label for="email" class="form-label">Email Address</label>
-            <input type="email" class="form-control" id="email" name="email" required />
+            <input type="email" class="form-control" id="email" name="email" required pattern="[^@\s]+@[^@\s]+\.[^@\s]+" title="Enter a valid email address" />
           </div>
         </div>
 
         <div class="mb-3">
           <label for="location" class="form-label">Hostel / Classroom / Location</label>
-          <input type="text" class="form-control" id="location" name="location" required />
+          <input type="text" class="form-control" id="location" name="location" required minlength="3" maxlength="100" />
         </div>
 
         <div class="mb-3">
           <label for="description" class="form-label">Description of the Repair Issue</label>
-          <textarea class="form-control" id="description" name="description" rows="4" required></textarea>
+          <textarea class="form-control" id="description" name="description" rows="4" required minlength="5" maxlength="500"></textarea>
         </div>
 
         <div class="row mb-3">
           <div class="col-md-6">
             <label for="incident_date" class="form-label">Date of Incident</label>
-            <input type="date" class="form-control" id="incident_date" name="incident_date" required />
+            <input type="date" class="form-control" id="incident_date" name="incident_date" required max="{{ max_date }}" />
           </div>
           <div class="col-md-6">
             <label for="attachments" class="form-label">Upload Attachments</label>

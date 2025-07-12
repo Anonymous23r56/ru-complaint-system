@@ -12,6 +12,8 @@ from reportlab.pdfgen import canvas
 from collections import Counter
 import datetime
 import hashlib
+import re
+from datetime import datetime
 
 app = Flask(__name__)
 app.config.from_object(Config)
@@ -244,6 +246,7 @@ app.jinja_env.globals.update(get_attachments=get_attachments)
 
 @app.route('/', methods=['GET', 'POST'])
 def complaint_form():
+    max_date = datetime.now().strftime('%Y-%m-%d')
     if request.method == 'POST':
         data = {
             'fullname': request.form['fullname'],
@@ -255,6 +258,30 @@ def complaint_form():
             'incident_date': request.form['incident_date'],
             'photo_filename': ''
         }
+        # Backend validation
+        errors = []
+        if not re.fullmatch(r'[A-Za-z ]{3,50}', data['fullname']):
+            errors.append('Full name must be 3-50 letters and spaces only.')
+        if not re.fullmatch(r'RUN/[A-Za-z]{3}/\d{2}/\d{4,6}', data['matric']):
+            errors.append('Matric number must be in the format RUN/XXX/YY/12345.')
+        if not re.fullmatch(r'\d{11}', data['phone']):
+            errors.append('Phone number must be exactly 11 digits.')
+        if not re.fullmatch(r'[^@\s]+@[^@\s]+\.[^@\s]+', data['email']):
+            errors.append('Enter a valid email address.')
+        if not (3 <= len(data['location']) <= 100):
+            errors.append('Location must be 3-100 characters.')
+        if not (5 <= len(data['description']) <= 500):
+            errors.append('Description must be 5-500 characters.')
+        try:
+            incident_date = datetime.strptime(data['incident_date'], '%Y-%m-%d')
+            if incident_date > datetime.now():
+                errors.append('Date of incident cannot be in the future.')
+        except Exception:
+            errors.append('Invalid date format.')
+        if errors:
+            for error in errors:
+                flash(error, 'danger')
+            return render_template('complaint_form.html', max_date=max_date, **data)
 
         # Save to database first to get complaint_id
         conn = sqlite3.connect('database.db')
@@ -306,7 +333,7 @@ def complaint_form():
 
         return redirect(url_for('success'))
 
-    return render_template('complaint_form.html')
+    return render_template('complaint_form.html', max_date=max_date)
 
 @app.route('/success')
 def success():
