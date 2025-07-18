@@ -1,3 +1,7 @@
+# Load environment variables from .env file
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 from flask_mail import Mail, Message
 import os
@@ -30,7 +34,7 @@ def hash_password(password):
 def init_db():
     conn = sqlite3.connect('database.db')
     c = conn.cursor()
-    # Complaints table (already present)
+    # Complaints table
     c.execute('''CREATE TABLE IF NOT EXISTS complaints (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         fullname TEXT,
@@ -48,7 +52,7 @@ def init_db():
         c.execute('ALTER TABLE complaints ADD COLUMN resolved INTEGER DEFAULT 0')
     except Exception:
         pass
-    # Admins table (already present)
+    # Admins table
     c.execute('''CREATE TABLE IF NOT EXISTS admins (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         username TEXT UNIQUE,
@@ -72,10 +76,8 @@ def init_db():
 
 init_db()
 
-app.secret_key = 'supersecretkey'  # Needed for session management
-
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'RUNSA2025'
+# Removed the hard-coded secret key - now using from config
+# ADMIN_USERNAME and ADMIN_PASSWORD variables removed as they're unused
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -167,9 +169,6 @@ def bulk_action():
     conn.commit()
     conn.close()
     return redirect(url_for('admin_panel'))
-
-import csv
-from flask import Response
 
 @app.route('/admin/download_csv')
 def download_csv():
@@ -292,28 +291,33 @@ def complaint_form():
         complaint_id = c.lastrowid
         conn.commit()
 
-        # Handle multiple file uploads
+        # Handle multiple file uploads - FIXED to match the form field name
         if 'attachments' in request.files:
             files = request.files.getlist('attachments')
             for file in files:
                 if file and file.filename:
-                    filename = secure_filename(file.filename)
-                    file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                    file.save(file_path)
-                    # Save attachment record
-                    c.execute('INSERT INTO attachments (complaint_id, filename) VALUES (?, ?)', (complaint_id, filename))
+                    # Check if file type is allowed
+                    if Config.allowed_file(file.filename):
+                        filename = secure_filename(file.filename)
+                        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+                        file.save(file_path)
+                        # Save attachment record
+                        c.execute('INSERT INTO attachments (complaint_id, filename) VALUES (?, ?)', (complaint_id, filename))
+                    else:
+                        flash(f'File type not allowed: {file.filename}', 'warning')
         conn.commit()
         conn.close()
 
-        # Send confirmation email to user (existing logic)
+        # Send confirmation email to user
         try:
-            msg = Message("Complaint Received - Redeemer’s University",
+            msg = Message("Complaint Received - Redeemer's University",
                           sender=app.config['MAIL_USERNAME'],
                           recipients=[data['email']])
-            msg.body = f"""Dear {data['fullname']},\n\nYour complaint has been received successfully. Here are the details:\n\nMatric Number: {data['matric']}\nPhone: {data['phone']}\nLocation: {data['location']}\nIssue: {data['description']}\nDate of Incident: {data['incident_date']}\n\nWe will address this issue as soon as possible.\n\nRegards,\nRUNSA 2025/2026\nRedeemer’s University\n"""
+            msg.body = f"""Dear {data['fullname']},\n\nYour complaint has been received successfully. Here are the details:\n\nMatric Number: {data['matric']}\nPhone: {data['phone']}\nLocation: {data['location']}\nIssue: {data['description']}\nDate of Incident: {data['incident_date']}\n\nWe will address this issue as soon as possible.\n\nRegards,\nRUNSA 2025/2026\nRedeemer's University\n"""
             mail.send(msg)
         except Exception as e:
             print("Email failed:", e)
+            flash('Complaint submitted but email confirmation failed.', 'warning')
 
         # Notify all admins
         try:
