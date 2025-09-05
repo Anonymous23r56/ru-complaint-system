@@ -42,7 +42,7 @@ Empowering students to be heard, and admins to respond efficiently.
 ### Installation
 
 ```sh
-git clone https://github.com/YourUsername/ru-complaint-system.git
+git clone https://github.com/Anonymous23r56/ru-complaint-system.git
 cd ru-complaint-system
 pip install -r requirements.txt
 ```
