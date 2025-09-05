@@ -3,7 +3,7 @@ import secrets
 
 class Config:
     # Generate a secure secret key if not provided
-    SECRET_KEY = os.environ.get('SECRET_KEY', 'yoursecretkey')
+    SECRET_KEY = os.environ.get('SECRET_KEY', secrets.token_hex(16))
     
     # Upload settings
     UPLOAD_FOLDER = 'static/uploads'
@@ -12,13 +12,14 @@ class Config:
     # Allowed file extensions
     ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'pdf', 'doc', 'docx'}
 
-    # Email config (Gmail SMTP)
-    MAIL_SERVER = 'smtp.sendgrid.net'
+    # ✅ Email config (Gmail SMTP)
+    MAIL_SERVER = 'smtp.gmail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True
-    MAIL_USERNAME = os.environ.get('MAIL_USERNAME')  # should be 'apikey'
-    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD')  # your SendGrid API key
-    
+    MAIL_USERNAME = os.environ.get('MAIL_USERNAME', 'samuelolokor228@gmail.com')
+    MAIL_PASSWORD = os.environ.get('MAIL_PASSWORD', 'wxdh wydd gdjs rzrz')
+    MAIL_DEFAULT_SENDER = os.environ.get('MAIL_DEFAULT_SENDER', MAIL_USERNAME)
+
     # Database config
     DATABASE_URL = os.environ.get('DATABASE_URL') or 'database.db'
     

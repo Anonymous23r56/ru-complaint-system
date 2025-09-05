@@ -1,10 +1,12 @@
 # Load environment variables from .env file
 from dotenv import load_dotenv
 load_dotenv()
-
+import os
+print("DEBUG: MAIL_PASSWORD =", os.environ.get("MAIL_PASSWORD"))
+print("DEBUG: FROM_EMAIL =", os.environ.get("SENDGRID_FROM_EMAIL"))
 from flask import Flask, render_template, request, redirect, url_for, session, flash, send_file
 from flask_mail import Mail, Message
-import os
+
 import sqlite3
 from werkzeug.utils import secure_filename
 from config import Config
@@ -18,9 +20,20 @@ import datetime
 import hashlib
 import re
 from datetime import datetime
+import requests
 
 app = Flask(__name__)
 app.config.from_object(Config)
+
+# ✅ Gmail SMTP configuration
+app.config.update(
+    MAIL_SERVER=os.getenv("MAIL_SERVER", "smtp.gmail.com"),
+    MAIL_PORT=int(os.getenv("MAIL_PORT", 587)),
+    MAIL_USE_TLS=os.getenv("MAIL_USE_TLS", "True") == "True",
+    MAIL_USERNAME=os.getenv("MAIL_USERNAME"),
+    MAIL_PASSWORD=os.getenv("MAIL_PASSWORD"),
+    MAIL_DEFAULT_SENDER=os.getenv("MAIL_DEFAULT_SENDER", os.getenv("MAIL_USERNAME"))
+)
 
 mail = Mail(app)
 
@@ -78,6 +91,29 @@ init_db()
 
 # Removed the hard-coded secret key - now using from config
 # ADMIN_USERNAME and ADMIN_PASSWORD variables removed as they're unused
+
+import requests
+
+def send_email(to_email, subject, content):
+    try:
+        msg = Message(subject, recipients=[to_email])
+        msg.body = content
+        mail.send(msg)
+        print(f"✅ Email sent to {to_email}")
+    except Exception as e:
+        print("❌ Email failed:", e)
+        raise
+
+    response = requests.post(url_for, headers=headers, json=data)
+
+    # Debugging / feedback
+    if response.status_code == 202:
+        print(f"✅ Email sent successfully to {to_email}")
+    else:
+        print(f"❌ SendGrid API error {response.status_code}: {response.text}")
+
+    return response.status_code
+
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
@@ -255,10 +291,23 @@ def complaint_form():
             'location': request.form['location'],
             'description': request.form['description'],
             'incident_date': request.form['incident_date'],
-            'photo_filename': ''
+            'photo_filenames': []
         }
-        # Backend validation
+
+        # Handle multiple file uploads
+        images = request.files.getlist('images[]')
+        for image in images:
+            if image and image.filename:
+                if Config.allowed_file(image.filename):
+                    filename = secure_filename(image.filename)
+                    image.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                    data['photo_filenames'].append(filename)
+                else:
+                    flash(f'File type not allowed: {image.filename}', 'warning')
+
+        # Validation
         errors = []
+        import re, sqlite3
         if not re.fullmatch(r'[A-Za-z ]{3,50}', data['fullname']):
             errors.append('Full name must be 3-50 letters and spaces only.')
         if not re.fullmatch(r'RUN/[A-Za-z]{3}/\d{2}/\d{4,6}', data['matric']):
@@ -282,39 +331,53 @@ def complaint_form():
                 flash(error, 'danger')
             return render_template('complaint_form.html', max_date=max_date, **data)
 
-        # Save to database first to get complaint_id
+        # Save to database
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
         c.execute('''INSERT INTO complaints 
             (fullname, matric, phone, email, location, description, incident_date, photo_filename) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', tuple(data.values()))
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)''', (
+                data['fullname'],
+                data['matric'],
+                data['phone'],
+                data['email'],
+                data['location'],
+                data['description'],
+                data['incident_date'],
+                ','.join(data['photo_filenames'])  # Save filenames as comma-separated
+            ))
         complaint_id = c.lastrowid
         conn.commit()
 
-        # Handle multiple file uploads - FIXED to match the form field name
-        if 'attachments' in request.files:
-            files = request.files.getlist('attachments')
-            for file in files:
-                if file and file.filename:
-                    # Check if file type is allowed
-                    if Config.allowed_file(file.filename):
-                        filename = secure_filename(file.filename)
-                        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                        file.save(file_path)
-                        # Save attachment record
-                        c.execute('INSERT INTO attachments (complaint_id, filename) VALUES (?, ?)', (complaint_id, filename))
-                    else:
-                        flash(f'File type not allowed: {file.filename}', 'warning')
+        # Save attachments records
+        for filename in data['photo_filenames']:
+            c.execute('INSERT INTO attachments (complaint_id, filename) VALUES (?, ?)', (complaint_id, filename))
         conn.commit()
         conn.close()
 
         # Send confirmation email to user
         try:
-            msg = Message("Complaint Received - Redeemer's University",
-                          sender=app.config['MAIL_USERNAME'],
-                          recipients=[data['email']])
-            msg.body = f"""Dear {data['fullname']},\n\nYour complaint has been received successfully. Here are the details:\n\nMatric Number: {data['matric']}\nPhone: {data['phone']}\nLocation: {data['location']}\nIssue: {data['description']}\nDate of Incident: {data['incident_date']}\n\nWe will address this issue as soon as possible.\n\nRegards,\nRUNSA 2025/2026\nRedeemer's University\n"""
-            mail.send(msg)
+            user_body = f"""Dear {data['fullname']},
+
+Your complaint has been received successfully. Here are the details:
+
+Matric Number: {data['matric']}
+Phone: {data['phone']}
+Location: {data['location']}
+Issue: {data['description']}
+Date of Incident: {data['incident_date']}
+
+We will address this issue as soon as possible.
+
+Regards,
+RUNSA Welfare 2025/2026
+Redeemer's University
+"""
+            send_email(
+                to_email=data['email'],
+                subject="Complaint Received - Redeemer's University",
+                content=user_body
+            )
         except Exception as e:
             print("Email failed:", e)
             flash('Complaint submitted but email confirmation failed.', 'warning')
@@ -326,12 +389,21 @@ def complaint_form():
             c.execute('SELECT username FROM admins')
             admin_emails = [row[0] for row in c.fetchall() if '@' in row[0]]
             conn.close()
+
             if admin_emails:
-                admin_msg = Message("New Complaint Submitted - RU Complaint System",
-                                   sender=app.config['MAIL_USERNAME'],
-                                   recipients=admin_emails)
-                admin_msg.body = f"A new complaint has been submitted by {data['fullname']} (Matric: {data['matric']}).\n\nLogin to the admin panel to view details."
-                mail.send(admin_msg)
+                admin_body = f"""A new complaint has been submitted.
+
+Student: {data['fullname']}  
+Matric: {data['matric']}  
+
+Login to the admin panel to view details.
+"""
+                for admin_email in admin_emails:
+                    send_email(
+                        to_email=admin_email,
+                        subject="New Complaint Submitted - RU Complaint System",
+                        content=admin_body
+                    )
         except Exception as e:
             print("Admin notification failed:", e)
 
